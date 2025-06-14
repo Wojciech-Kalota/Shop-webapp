@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 
 namespace Shared
 {
-    public class ProductEntity
+    public class CommentEntity
     {
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public string Text { get; set; }
         public DateTimeOffset CreatedDate { get; set; } = DateTimeOffset.Now;
         public DateTimeOffset UpdatedDate { get; set; } = DateTimeOffset.Now;
-        
-        public List<Guid> ?CommentIds { get; set; }
+
+        public Guid ProductId { get; set; }
     }
 }

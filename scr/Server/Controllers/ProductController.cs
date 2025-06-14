@@ -9,7 +9,7 @@ namespace Server.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        public ProductsService _productsServise;
+        private ProductsService _productsServise;
 
         public ProductController(ProductsService productsService)
         {
@@ -28,6 +28,13 @@ namespace Server.Controllers
         {
             var allProducts = _productsServise.GetAllProducts();
             return Ok(allProducts);
+        }
+
+        [HttpGet("get-products-containing/{substring}")]
+        public IActionResult GetProductsContaining(string substring)
+        {
+            var products = _productsServise.GetProductsContaining(substring);
+            return Ok(products);
         }
 
         [HttpGet("get-product-by-id/{id}")]

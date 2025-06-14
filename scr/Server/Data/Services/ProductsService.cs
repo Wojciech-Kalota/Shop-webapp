@@ -34,6 +34,11 @@ public class ProductsService
         return _context.Products.Where(n => !n.IsDeleted).ToList();
     }
 
+    public List<Product> GetProductsContaining(string substring)
+    {
+        return _context.Products.Where(n => !n.IsDeleted && n.Name.Contains(substring)).ToList();
+    }
+
     public Product UpdateProductById(Guid productId, ProductEntity product)
     {
         var _product = _context.Products.Where(n => !n.IsDeleted).FirstOrDefault(n => n.Id == productId);

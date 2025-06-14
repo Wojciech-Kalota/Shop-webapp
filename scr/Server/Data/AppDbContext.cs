@@ -11,5 +11,6 @@ namespace Server.Data
         }
 
         public DbSet<Product> Products { get; set; }
+        public DbSet<Comment> Comments { get; set; }
     }
 }

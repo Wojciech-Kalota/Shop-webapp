@@ -17,6 +17,7 @@ options.UseSqlite(builder.Configuration.GetConnectionString("TestingConnectionSt
 
 // Configure Services
 builder.Services.AddTransient<ProductsService>();
+builder.Services.AddTransient<CommentsService>();
 
 // Nswag
 builder.Services.AddOpenApiDocument();
