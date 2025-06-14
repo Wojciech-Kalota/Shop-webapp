@@ -6,8 +6,8 @@
         public string Name { get; set; }
         public string Description { get; set; }
         public bool IsDeleted { get; set; } = false;
-        public DateTimeOffset CreatedDate { get; set; }
-        public DateTimeOffset UpdatedDate { get;set; }
+        public DateTimeOffset CreatedDate { get; set; } = DateTimeOffset.Now;
+        public DateTimeOffset UpdatedDate { get;set; } = DateTimeOffset.Now;
 
     }
 }

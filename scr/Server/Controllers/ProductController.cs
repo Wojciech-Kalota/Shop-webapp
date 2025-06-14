@@ -23,5 +23,32 @@ namespace Server.Controllers
             return Ok();
         }
 
+        [HttpGet("get-all-products")]
+        public IActionResult GetAllProducts()
+        {
+            var allProducts = _productsServise.GetAllProducts();
+            return Ok(allProducts);
+        }
+
+        [HttpGet("get-product-by-id/{id}")]
+        public IActionResult GetProductById(Guid id)
+        {
+            var product = _productsServise.GetProductById(id);
+            return Ok(product);
+        }
+
+        [HttpPut("update-product-by-id/{id}")]
+        public IActionResult UpdateProductById(Guid id, [FromBody]ProductEntity product)
+        {
+            var updatedProduct = _productsServise.UpdateProductById(id, product);
+            return Ok(updatedProduct);
+        }
+
+        [HttpDelete("delete-product-by-id/{id}")]
+        public IActionResult DeleteProductById(Guid id)
+        {
+            _productsServise.DeledeProductById(id);
+            return Ok();
+        }
     }
 }
