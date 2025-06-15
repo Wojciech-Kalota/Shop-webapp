@@ -9,7 +9,7 @@
         public DateTimeOffset CreatedDate { get; set; } = DateTimeOffset.Now;
         public DateTimeOffset UpdatedDate { get;set; } = DateTimeOffset.Now;
 
-        public List<Comment> Comments { get; set; }
+        public List<Comment> ?Comments { get; set; }
 
     }
 }

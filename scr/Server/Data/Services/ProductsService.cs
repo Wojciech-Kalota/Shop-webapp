@@ -1,6 +1,7 @@
 ﻿namespace Server.Data.Services;
 
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Server.Data.Models;
 using Shared;
 
@@ -97,10 +98,22 @@ public class ProductsService
 
     public void DeledeProductById(Guid productId)
     {
-        var _product = _context.Products.Where(n => !n.IsDeleted).FirstOrDefault(n => n.Id == productId);
-        if (_product != null)
+        var product = _context.Products
+            .Include(p => p.Comments)
+            .FirstOrDefault(p => p.Id == productId && !p.IsDeleted);
+
+        if (product != null)
         {
-            _product.IsDeleted = true;
+            product.IsDeleted = true;
+
+            if (product.Comments != null)
+            {
+                foreach (var comment in product.Comments)
+                {
+                    comment.IsDeleted = true;
+                }
+            }
+
             _context.SaveChanges();
         }
     }
