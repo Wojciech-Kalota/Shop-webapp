@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Server.Data.Models;
 using Server.Data.Services;
 using Shared;
 
 namespace Server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/comments")]
     [ApiController]
     public class CommentController : ControllerBase
     {
@@ -16,17 +17,25 @@ namespace Server.Controllers
             _commentsServise = commentsService;
         }
 
-        [HttpPost("add-comment")]
+        [HttpPost]
         public IActionResult AddComment([FromBody] CommentEntity comment)
         {
             _commentsServise.AddComment(comment);
             return Ok();
         }
 
-        public IActionResult GetAllProductComments(Guid productId)
+        [HttpPut("{id}")]
+        public IActionResult UpdateCommentById(Guid id, [FromBody] CommentEntity comment)
         {
-            var comments = _commentsServise.GetAllProductComments(productId);
-            return Ok(comments);
+            var updatedComment = _commentsServise.UpdateCommentById(id, comment);
+            return Ok(updatedComment);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteCommentById(Guid id)
+        {
+            _commentsServise.DeleteCommentById(id);
+            return Ok();
         }
     }
 }

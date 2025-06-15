@@ -24,10 +24,26 @@ namespace Server.Data.Services
             _context.SaveChanges();
         }
 
-        public List<Comment> GetAllProductComments(Guid productId)
+        public Comment UpdateCommentById(Guid commentId, CommentEntity comment)
         {
-            return _context.Comments.Where(n => n.ProductId == productId && !n.IsDeleted).ToList();
+            var _comment = _context.Comments.Where(n => !n.IsDeleted).FirstOrDefault(n => n.Id == commentId);
+            if (_comment != null)
+            {
+                _comment.Text = comment.Text;
+
+                _context.SaveChanges();
+            }
+            return _comment;
         }
 
+        public void DeleteCommentById(Guid commentId)
+        {
+            var _comment = _context.Comments.Where(n => !n.IsDeleted).FirstOrDefault(n => n.Id == commentId);
+            if (_comment != null)
+            {
+                _comment.IsDeleted = true;
+                _context.SaveChanges();
+            }
+        }
     }
 }

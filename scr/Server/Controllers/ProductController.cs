@@ -5,7 +5,7 @@ using Shared;
 
 namespace Server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/products")]
     [ApiController]
     public class ProductController : ControllerBase
     {
@@ -16,46 +16,67 @@ namespace Server.Controllers
             _productsServise = productsService;
         }
 
-        [HttpPost("add-product")]
+        [HttpPost]
         public IActionResult AddProduct([FromBody]ProductEntity product)
         {
             _productsServise.AddProduct(product);
             return Ok();
         }
 
-        [HttpGet("get-all-products")]
-        public IActionResult GetAllProducts()
-        {
-            var allProducts = _productsServise.GetAllProducts();
-            return Ok(allProducts);
-        }
+        //[HttpGet]
+        //public IActionResult GetAllProducts()
+        //{
+        //    var allProducts = _productsServise.GetAllProducts();
+        //    return Ok(allProducts);
+        //}
 
-        [HttpGet("get-products-containing/{substring}")]
-        public IActionResult GetProductsContaining(string substring)
-        {
-            var products = _productsServise.GetProductsContaining(substring);
-            return Ok(products);
-        }
+        //[HttpGet("get-products-containing/{substring}")]
+        //public IActionResult GetProductsContaining(string substring)
+        //{
+        //    var products = _productsServise.GetProductsContaining(substring);
+        //    return Ok(products);
+        //}
 
-        [HttpGet("get-product-by-id/{id}")]
+        [HttpGet("{id}")]
         public IActionResult GetProductById(Guid id)
         {
             var product = _productsServise.GetProductById(id);
             return Ok(product);
         }
 
-        [HttpPut("update-product-by-id/{id}")]
+        //[HttpGet("get-products-by-page")]
+        //public IActionResult GetProductsByPage(int page = 1, int pageSize = 10)
+        //{
+        //    var products = _productsServise.GetProductsByPage(page, pageSize);
+        //    return Ok(products);
+        //}
+
+        [HttpGet]
+        public IActionResult GetProductsByPage([FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var products = _productsServise.GetProducts(search, page, pageSize);
+            return Ok(products);
+        }
+
+        [HttpPut("{id}")]
         public IActionResult UpdateProductById(Guid id, [FromBody]ProductEntity product)
         {
             var updatedProduct = _productsServise.UpdateProductById(id, product);
             return Ok(updatedProduct);
         }
 
-        [HttpDelete("delete-product-by-id/{id}")]
+        [HttpDelete("{id}")]
         public IActionResult DeleteProductById(Guid id)
         {
             _productsServise.DeledeProductById(id);
             return Ok();
+        }
+
+        [HttpGet("{id}/comments")]
+        public IActionResult GetAllProductComments(Guid id)
+        {
+            var comments = _productsServise.GetAllProductComments(id);
+            return Ok(comments);
         }
     }
 }
