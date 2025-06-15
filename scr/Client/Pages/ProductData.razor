@@ -1,0 +1,184 @@
+﻿@page "/products/{Id:guid}"
+@using Shared
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+
+<h3>Product Details</h3>
+
+@if (product == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <EditForm Model="@product" OnValidSubmit="SaveChanges">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div>
+            <label><strong>Product:</strong></label><br />
+            <InputText @bind-Value="product.Name" class="form-control" />
+        </div>
+
+        <div>
+            <label><strong>Description:</strong></label><br />
+            <InputTextArea @bind-Value="product.Description" class="form-control" />
+        </div>
+
+        <div>
+            <label><strong>Posted:</strong></label> @product.CreatedDate
+        </div>
+
+        <div>
+            <label><strong>Edited:</strong></label> @product.UpdatedDate
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" class="btn btn-danger ms-2" @onclick="DeleteProduct">Delete</button>
+        </div>
+    </EditForm>
+}
+
+<h3 class="mt-4">Comments</h3>
+
+@if (comments == null)
+{
+    <p>Loading comments...</p>
+}
+else
+{
+    <div>
+        @foreach (var comment in comments)
+        {
+            <div class="border p-2 mb-2">
+                @if (editingCommentId == comment.Id)
+                {
+                    <InputTextArea class="form-control" @bind-Value="commentEditText" />
+                    <div class="mt-1">
+                        <button class="btn btn-sm btn-success" @onclick="() => SaveEditedComment(comment.Id)">Save</button>
+                        <button class="btn btn-sm btn-secondary ms-1" @onclick="CancelEdit">Cancel</button>
+                    </div>
+                }
+                else
+                {
+                    <p>@comment.Text</p>
+                    <button class="btn btn-sm btn-outline-primary" @onclick="() => StartEdit(comment.Id, comment.Text)">Edit</button>
+                    <button class="btn btn-sm btn-outline-danger ms-2" @onclick="() => DeleteComment(comment.Id)">Delete</button>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="mt-3">
+        <h5>Add a new comment:</h5>
+        <InputTextArea class="form-control" @bind-Value="newCommentText" />
+        <button class="btn btn-primary mt-2" @onclick="AddComment" disabled="@string.IsNullOrWhiteSpace(newCommentText)">Post Comment</button>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private ProductFull product;
+
+    protected override async Task OnInitializedAsync()
+    {
+        product = await Http.GetFromJsonAsync<ProductFull>($"products/{Id}");
+        await LoadComments();
+    }
+
+    private async Task SaveChanges()
+    {
+        var response = await Http.PutAsJsonAsync($"products/{Id}", product);
+
+        if (response.IsSuccessStatusCode)
+        {
+            product = await response.Content.ReadFromJsonAsync<ProductFull>();
+        }
+    }
+
+    private async Task DeleteProduct()
+    {
+        var confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete '{product.Name}'?");
+        if (!confirmed)
+            return;
+
+        var response = await Http.DeleteAsync($"products/{Id}");
+
+        if (response.IsSuccessStatusCode)
+        {
+            Navigation.NavigateTo("/"); 
+        }
+    }
+
+    private List<CommentFull> comments;
+    private string newCommentText;
+    private string commentEditText;
+    private Guid? editingCommentId = null;
+
+    private async Task LoadComments()
+    {
+        comments = await Http.GetFromJsonAsync<List<CommentFull>>($"/api/products/{Id}/comments");
+    }
+
+    private async Task AddComment()
+    {
+        var newComment = new
+        {
+            ProductId = Id,
+            Text = newCommentText
+        };
+
+        var response = await Http.PostAsJsonAsync("/api/comments", newComment);
+
+        if (response.IsSuccessStatusCode)
+        {
+            newCommentText = "";
+            await LoadComments();
+        }
+    }
+
+    private void StartEdit(Guid commentId, string text)
+    {
+        editingCommentId = commentId;
+        commentEditText = text;
+    }
+
+    private void CancelEdit()
+    {
+        editingCommentId = null;
+        commentEditText = string.Empty;
+    }
+
+    private async Task SaveEditedComment(Guid commentId)
+    {
+        var update = new { Text = commentEditText };
+
+        var response = await Http.PutAsJsonAsync($"/api/comments/{commentId}", update);
+
+        if (response.IsSuccessStatusCode)
+        {
+            editingCommentId = null;
+            commentEditText = "";
+            await LoadComments();
+        }
+    }
+
+    private async Task DeleteComment(Guid commentId)
+    {
+        var confirmed = await JS.InvokeAsync<bool>("confirm", "Are you sure you want to delete this comment?");
+        if (!confirmed) return;
+
+        var response = await Http.DeleteAsync($"/api/comments/{commentId}");
+
+        if (response.IsSuccessStatusCode)
+        {
+            await LoadComments();
+        }
+    }
+}

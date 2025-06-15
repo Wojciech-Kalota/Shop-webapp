@@ -22,6 +22,16 @@ builder.Services.AddTransient<CommentsService>();
 // Nswag
 builder.Services.AddOpenApiDocument();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorClient",
+        policy => policy
+            .WithOrigins("https://localhost:7129") // your Blazor client port!
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -31,6 +41,8 @@ if (app.Environment.IsDevelopment())
     app.UseOpenApi(); // Serves the OpenAPI spec
     app.UseSwaggerUi(); // Serves Swagger UI
 }
+
+app.UseCors("AllowBlazorClient");
 
 app.UseHttpsRedirection();
 
